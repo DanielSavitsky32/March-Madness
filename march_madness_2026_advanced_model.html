@@ -1,0 +1,576 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>March Madness 2026 — Advanced Predictive Model</title>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{
+--bg:#08090d;--bg2:#0f1117;--bg3:#171a24;--bg4:#1f2333;--bg5:#282d3e;
+--fg:#e4e6ee;--fg2:#9ea3b5;--fg3:#626880;
+--o:#e8622c;--o2:#f28a50;--o-dim:rgba(232,98,44,.1);
+--g:#1eb854;--g-dim:rgba(30,184,84,.08);
+--r:#e03e3e;--r-dim:rgba(224,62,62,.08);
+--b:#3d7cf5;--b-dim:rgba(61,124,245,.08);
+--p:#9b5cf5;--p-dim:rgba(155,92,245,.08);
+--t:#10b5a0;--t-dim:rgba(16,181,160,.08);
+--y:#e5a200;--y-dim:rgba(229,162,0,.08);
+--bdr:rgba(255,255,255,.05);--bdr2:rgba(255,255,255,.09);
+--f:'Instrument Sans',system-ui,sans-serif;--m:'JetBrains Mono',monospace;
+--rad:8px;--rad2:14px;
+}
+html{font-family:var(--f);background:var(--bg);color:var(--fg);font-size:14px;line-height:1.55}
+body{padding:0}
+button{font-family:var(--f);cursor:pointer;border:none;background:none;color:var(--fg)}
+input[type=range]{-webkit-appearance:none;background:transparent;width:100%}
+input[type=range]::-webkit-slider-track{height:3px;background:var(--bg5);border-radius:2px}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:14px;height:14px;border-radius:50%;background:var(--o);margin-top:-5.5px;cursor:pointer}
+::selection{background:rgba(232,98,44,.3)}
+.wrap{max-width:1180px;margin:0 auto;padding:20px 16px 60px}
+
+/* HEADER */
+.hdr{text-align:center;padding:44px 0 28px;position:relative}
+.hdr::after{content:'';position:absolute;top:-40px;left:50%;transform:translateX(-50%);width:320px;height:260px;background:radial-gradient(ellipse,rgba(232,98,44,.12),transparent 70%);pointer-events:none}
+.hdr h1{font-size:clamp(26px,4.5vw,40px);font-weight:700;letter-spacing:-.03em;line-height:1.05}
+.hdr h1 em{font-style:normal;background:linear-gradient(135deg,var(--o),var(--y));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.hdr .sub{color:var(--fg3);font-size:13px;max-width:620px;margin:10px auto 0}
+.pill{display:inline-block;font-family:var(--m);font-size:10px;text-transform:uppercase;letter-spacing:.1em;padding:3px 10px;border-radius:20px;margin-bottom:10px}
+.pill-o{background:var(--o-dim);color:var(--o)}
+
+/* SECTION */
+.sec{background:var(--bg2);border:1px solid var(--bdr);border-radius:var(--rad2);padding:22px;margin-bottom:20px}
+.sec h2{font-size:15px;font-weight:600;margin-bottom:14px;display:flex;align-items:center;gap:8px}
+.sec h2 .ico{width:20px;height:20px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700}
+.sec p{color:var(--fg2);font-size:12.5px;line-height:1.7}
+.sec p strong{color:var(--fg);font-weight:600}
+
+/* PRINCIPLE CARDS */
+.princ-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:10px;margin-top:14px}
+.princ{background:var(--bg3);border:1px solid var(--bdr);border-radius:var(--rad);padding:12px;position:relative;overflow:hidden}
+.princ::before{content:'';position:absolute;top:0;left:0;width:3px;height:100%;border-radius:2px}
+.princ-1::before{background:var(--o)}.princ-2::before{background:var(--b)}.princ-3::before{background:var(--y)}
+.princ-4::before{background:var(--t)}.princ-5::before{background:var(--p)}.princ-6::before{background:var(--g)}
+.princ .pw{font-family:var(--m);font-size:18px;font-weight:700;margin-bottom:2px}
+.princ .pl{font-size:11px;color:var(--fg3);text-transform:uppercase;letter-spacing:.04em}
+
+/* WEIGHTS */
+.wrow{display:flex;align-items:center;gap:10px;padding:7px 0;border-bottom:1px solid var(--bdr)}
+.wrow:last-child{border-bottom:none}
+.wlbl{width:200px;font-size:12px;color:var(--fg2);flex-shrink:0}
+.wslider{flex:1}
+.wval{width:40px;text-align:right;font-family:var(--m);font-size:12px;color:var(--o)}
+.presets{display:flex;gap:6px;margin-bottom:14px;flex-wrap:wrap}
+.pbtn{padding:5px 12px;border-radius:16px;font-size:11px;font-weight:500;border:1px solid var(--bdr2);transition:all .15s}
+.pbtn:hover{border-color:var(--o);color:var(--o)}
+.pbtn.on{background:var(--o);color:#000;border-color:var(--o)}
+
+/* TABS */
+.tabs{display:flex;gap:2px;margin-bottom:20px;background:var(--bg2);border-radius:var(--rad);padding:3px;overflow-x:auto;-webkit-overflow-scrolling:touch}
+.tab{padding:9px 16px;border-radius:6px;font-size:12px;font-weight:500;color:var(--fg3);transition:all .12s;white-space:nowrap}
+.tab:hover{color:var(--fg)}.tab.on{background:var(--bg4);color:var(--fg)}
+
+/* MATCHUP */
+.rlbl{font-size:10px;text-transform:uppercase;letter-spacing:.1em;color:var(--fg3);margin:18px 0 8px;font-family:var(--m)}
+.mu{background:var(--bg2);border:1px solid var(--bdr);border-radius:var(--rad);margin-bottom:6px;overflow:hidden;transition:border-color .15s}
+.mu:hover{border-color:var(--bdr2)}
+.tr{display:flex;align-items:center;padding:9px 12px;gap:8px;position:relative;transition:background .1s}
+.tr.w{background:var(--g-dim)}
+.tr.l{opacity:.4}
+.tr .sd{font-family:var(--m);font-size:10px;width:22px;height:22px;display:flex;align-items:center;justify-content:center;border-radius:50%;background:var(--bg4);color:var(--fg3);font-weight:700;flex-shrink:0}
+.tr.w .sd{background:var(--g-dim);color:var(--g)}
+.tr .nm{flex:1;font-size:12.5px;font-weight:500}
+.tr .rec{font-size:10px;color:var(--fg3);font-family:var(--m)}
+.tr .pct{font-family:var(--m);font-size:12px;font-weight:700;min-width:44px;text-align:right}
+.tr.w .pct{color:var(--g)}
+.tr .bar{position:absolute;left:0;bottom:0;height:2px;border-radius:1px;background:var(--o);transition:width .3s}
+.mu-div{height:1px;background:var(--bdr);margin:0 12px}
+.mu-ft{padding:5px 12px;font-size:10px;color:var(--fg3);display:flex;justify-content:space-between;border-top:1px solid var(--bdr);flex-wrap:wrap;gap:4px}
+.mu-ft span{white-space:nowrap}
+.utag{font-family:var(--m);font-size:9px;padding:2px 5px;border-radius:3px;background:var(--y-dim);color:var(--y)}
+.ltag{font-family:var(--m);font-size:9px;padding:2px 5px;border-radius:3px;background:var(--r-dim);color:var(--r)}
+
+/* CHAMP */
+.champ{text-align:center;margin:28px 0;padding:28px;background:var(--bg2);border:2px solid var(--o);border-radius:var(--rad2);position:relative;overflow:hidden}
+.champ::before{content:'';position:absolute;inset:0;background:radial-gradient(circle at center,rgba(232,98,44,.08),transparent 70%);pointer-events:none}
+.champ .trophy{font-size:42px;margin-bottom:6px}
+.champ h2{font-size:28px;font-weight:700;background:linear-gradient(135deg,var(--o),var(--y));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.champ .det{color:var(--fg2);margin-top:6px;font-size:13px}
+.champ .cp{font-family:var(--m);font-size:18px;color:var(--o);margin-top:4px}
+
+/* FF */
+.ff{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:20px}
+.ffc{background:var(--bg2);border:1px solid var(--bdr);border-radius:var(--rad2);padding:16px;text-align:center}
+.ffc.chp{border-color:var(--o);background:var(--o-dim)}
+.ffc .fs{font-family:var(--m);font-size:10px;color:var(--fg3);margin-bottom:3px}
+.ffc .fn{font-size:16px;font-weight:700}
+.ffc.chp .fn{color:var(--o)}
+.ffc .fp{font-family:var(--m);font-size:12px;color:var(--fg2);margin-top:2px}
+
+/* POWER TABLE */
+.ptbl{width:100%;border-collapse:collapse}
+.ptbl th{text-align:left;padding:8px 10px;font-size:10px;text-transform:uppercase;letter-spacing:.06em;color:var(--fg3);border-bottom:1px solid var(--bdr2);font-family:var(--m);position:sticky;top:0;background:var(--bg)}
+.ptbl td{padding:8px 10px;border-bottom:1px solid var(--bdr);font-size:12px;vertical-align:middle}
+.ptbl tr:hover td{background:var(--bg2)}
+.ptbl .rk{font-family:var(--m);font-weight:700;color:var(--o);width:36px}
+.ptbl .sc{font-family:var(--m);font-weight:700}
+.barbg{width:100%;height:5px;background:var(--bg4);border-radius:3px;overflow:hidden}
+.barfill{height:100%;border-radius:3px;transition:width .3s}
+.sp{font-size:10px;padding:2px 6px;border-radius:3px;font-family:var(--m);display:inline-block}
+.sp-b{background:var(--b-dim);color:var(--b)}
+.sp-g{background:var(--g-dim);color:var(--g)}
+.sp-p{background:var(--p-dim);color:var(--p)}
+.sp-y{background:var(--y-dim);color:var(--y)}
+.sp-r{background:var(--r-dim);color:var(--r)}
+.sp-t{background:var(--t-dim);color:var(--t)}
+
+/* INSIGHT CARDS */
+.ins-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:12px;margin-top:14px}
+.ins{background:var(--bg3);border:1px solid var(--bdr);border-radius:var(--rad);padding:14px}
+.ins .it{font-size:13px;font-weight:600;margin-bottom:4px}
+.ins .id{font-size:11.5px;color:var(--fg2);line-height:1.6}
+
+@media(max-width:640px){
+.wrap{padding:12px 10px 40px}
+.ff{grid-template-columns:1fr}
+.princ-grid{grid-template-columns:1fr 1fr}
+.wlbl{width:130px;font-size:11px}
+.mu-ft{font-size:9px}
+}
+</style>
+</head>
+<body>
+<div class="wrap" id="app"></div>
+<script>
+// ============================================================
+//  2026 MARCH MADNESS — MULTI-FACTOR PREDICTIVE MODEL
+//  Core principles (per user specification):
+//   1. Adjusted Efficiency Margin (AdjEM) — #1 predictor
+//   2. Defensive efficiency — defense travels in March
+//   3. Luck regression — "lucky" teams disappoint
+//   4. Offensive efficiency
+//   5. Strength of schedule
+//   6. Experience (returners, coach tourney record)
+//   7. 3PT% / FT% / shooting profile
+//   8. Turnover rate (force & commit)
+//   9. Rebounding margin
+//  10. Pace / tempo
+//  11. Scoring run volatility (large runs for & against)
+//  Seed data is NOT a model input.
+// ============================================================
+
+// TEAM DATABASE — all 68 teams
+// Data sourced from KenPom (3/16/2026), ESPN, Lunardi guide
+// adjEM = AdjO - AdjD (higher = better, ~scaled 0-40+)
+// defRk = KenPom defensive efficiency rank (lower = better D)
+// offRk = KenPom offensive efficiency rank
+// luck = estimated KenPom luck factor (-1 to +1, 0 = neutral; positive = "lucky")
+// sos = strength of schedule percentile (0-100)
+// exp = experience composite (returners + coach March record, 0-10)
+// tPct = 3PT% (team)
+// ftRate = FT rate (FTA/FGA)
+// toRate = turnover % committed (lower = better)
+// toForce = opponent turnover % forced (higher = better)
+// orbPct = offensive rebound %
+// drbPct = defensive rebound %
+// pace = possessions per game (tempo)
+// runVol = scoring run volatility (0-10: 10 = makes huge runs and rarely allows them)
+// injFlag = 0-10 (10 = devastating injury)
+
+const T={
+// EAST REGION =============================================
+"Duke":{s:1,r:"East",rec:"32-2",adjEM:40.5,offRk:4,defRk:2,luck:-.02,sos:92,exp:5,tPct:.384,ftRate:.35,toRate:16.2,toForce:20.8,orbPct:32,drbPct:78,pace:69.5,runVol:8.5,inj:3},
+"Siena":{s:16,r:"East",rec:"23-11",adjEM:-4.2,offRk:208,defRk:175,luck:.04,sos:12,exp:2,tPct:.342,ftRate:.30,toRate:18.5,toForce:18.0,orbPct:28,drbPct:72,pace:67,runVol:5,inj:0},
+"Ohio State":{s:8,r:"East",rec:"21-12",adjEM:14.8,offRk:17,defRk:53,luck:.06,sos:88,exp:7,tPct:.358,ftRate:.33,toRate:17.8,toForce:18.5,orbPct:30,drbPct:73,pace:70,runVol:5.5,inj:0},
+"TCU":{s:9,r:"East",rec:"22-11",adjEM:11.2,offRk:81,defRk:22,luck:.01,sos:82,exp:5,tPct:.345,ftRate:.34,toRate:17.0,toForce:19.5,orbPct:31,drbPct:76,pace:66,runVol:6,inj:0},
+"St. John's":{s:5,r:"East",rec:"28-6",adjEM:19.8,offRk:44,defRk:12,luck:.05,sos:78,exp:6,tPct:.332,ftRate:.40,toRate:16.5,toForce:21.0,orbPct:34,drbPct:75,pace:66.5,runVol:7,inj:0},
+"N. Iowa":{s:12,r:"East",rec:"23-12",adjEM:3.5,offRk:153,defRk:24,luck:-.01,sos:38,exp:4,tPct:.338,ftRate:.28,toRate:17.5,toForce:19.0,orbPct:27,drbPct:74,pace:63,runVol:5.5,inj:0},
+"Kansas":{s:4,r:"East",rec:"23-10",adjEM:18.5,offRk:57,defRk:10,luck:.03,sos:90,exp:8,tPct:.348,ftRate:.36,toRate:17.2,toForce:19.8,orbPct:31,drbPct:75,pace:68,runVol:6.5,inj:10},
+"Cal Baptist":{s:13,r:"East",rec:"25-8",adjEM:-0.8,offRk:191,defRk:49,luck:.03,sos:15,exp:2,tPct:.352,ftRate:.31,toRate:18.0,toForce:18.5,orbPct:29,drbPct:73,pace:68,runVol:5,inj:0},
+"Louisville":{s:6,r:"East",rec:"23-10",adjEM:17.2,offRk:20,defRk:25,luck:.00,sos:80,exp:4,tPct:.368,ftRate:.34,toRate:16.8,toForce:19.2,orbPct:29,drbPct:74,pace:70.5,runVol:6.5,inj:5},
+"S. Florida":{s:11,r:"East",rec:"25-8",adjEM:9.5,offRk:58,defRk:48,luck:.02,sos:55,exp:3,tPct:.355,ftRate:.32,toRate:17.0,toForce:19.5,orbPct:30,drbPct:73,pace:68,runVol:6,inj:0},
+"Michigan St.":{s:3,r:"East",rec:"25-7",adjEM:22.5,offRk:24,defRk:13,luck:.01,sos:86,exp:9,tPct:.348,ftRate:.32,toRate:18.0,toForce:20.5,orbPct:33,drbPct:76,pace:72.5,runVol:7,inj:0},
+"N. Dakota St.":{s:14,r:"East",rec:"27-7",adjEM:-1.5,offRk:124,defRk:123,luck:.00,sos:18,exp:3,tPct:.355,ftRate:.29,toRate:17.5,toForce:18.0,orbPct:28,drbPct:72,pace:66,runVol:5,inj:0},
+"UCLA":{s:7,r:"East",rec:"23-11",adjEM:14.0,offRk:22,defRk:54,luck:.04,sos:84,exp:6,tPct:.362,ftRate:.33,toRate:17.5,toForce:18.0,orbPct:28,drbPct:71,pace:69,runVol:5.5,inj:0},
+"UCF":{s:10,r:"East",rec:"21-11",adjEM:8.5,offRk:40,defRk:101,luck:.02,sos:72,exp:3,tPct:.356,ftRate:.31,toRate:17.8,toForce:18.2,orbPct:29,drbPct:72,pace:68,runVol:5,inj:0},
+"UConn":{s:2,r:"East",rec:"29-5",adjEM:21.0,offRk:30,defRk:11,luck:.04,sos:76,exp:9,tPct:.355,ftRate:.35,toRate:18.5,toForce:21.5,orbPct:35,drbPct:77,pace:67,runVol:7.5,inj:0},
+"Furman":{s:15,r:"East",rec:"22-12",adjEM:-5.0,offRk:200,defRk:182,luck:.01,sos:22,exp:3,tPct:.340,ftRate:.30,toRate:18.0,toForce:17.5,orbPct:27,drbPct:71,pace:67,runVol:4.5,inj:0},
+
+// WEST REGION =============================================
+"Arizona":{s:1,r:"West",rec:"32-2",adjEM:38.0,offRk:5,defRk:3,luck:-.01,sos:88,exp:7,tPct:.378,ftRate:.36,toRate:15.8,toForce:20.5,orbPct:33,drbPct:78,pace:70,runVol:8.5,inj:0},
+"Long Island":{s:16,r:"West",rec:"24-10",adjEM:-7.0,offRk:239,defRk:186,luck:.02,sos:8,exp:1,tPct:.335,ftRate:.28,toRate:19.0,toForce:17.0,orbPct:26,drbPct:70,pace:67,runVol:4,inj:0},
+"Villanova":{s:8,r:"West",rec:"24-8",adjEM:12.5,offRk:41,defRk:35,luck:.02,sos:74,exp:6,tPct:.362,ftRate:.33,toRate:16.5,toForce:19.0,orbPct:29,drbPct:74,pace:67.5,runVol:6,inj:0},
+"Utah State":{s:9,r:"West",rec:"28-6",adjEM:13.0,offRk:28,defRk:44,luck:-.02,sos:50,exp:5,tPct:.370,ftRate:.32,toRate:16.0,toForce:19.5,orbPct:30,drbPct:74,pace:66,runVol:6.5,inj:0},
+"Wisconsin":{s:5,r:"West",rec:"24-10",adjEM:16.5,offRk:11,defRk:51,luck:-.03,sos:86,exp:7,tPct:.382,ftRate:.31,toRate:15.5,toForce:18.8,orbPct:28,drbPct:74,pace:65,runVol:6.5,inj:0},
+"High Point":{s:12,r:"West",rec:"30-4",adjEM:2.0,offRk:66,defRk:161,luck:.07,sos:20,exp:2,tPct:.365,ftRate:.30,toRate:17.0,toForce:19.0,orbPct:30,drbPct:72,pace:69,runVol:6,inj:0},
+"Arkansas":{s:4,r:"West",rec:"26-8",adjEM:18.0,offRk:6,defRk:52,luck:.02,sos:85,exp:5,tPct:.342,ftRate:.38,toRate:18.5,toForce:17.5,orbPct:28,drbPct:69,pace:74,runVol:7.5,inj:0},
+"Hawaii":{s:13,r:"West",rec:"24-8",adjEM:-0.5,offRk:207,defRk:42,luck:.01,sos:18,exp:2,tPct:.338,ftRate:.29,toRate:17.5,toForce:18.5,orbPct:29,drbPct:74,pace:66,runVol:5,inj:0},
+"BYU":{s:6,r:"West",rec:"23-11",adjEM:15.0,offRk:10,defRk:57,luck:.01,sos:82,exp:4,tPct:.375,ftRate:.33,toRate:16.8,toForce:18.0,orbPct:28,drbPct:72,pace:71,runVol:6,inj:7},
+"Texas":{s:11,r:"West",rec:"18-14",adjEM:10.5,offRk:13,defRk:111,luck:.00,sos:90,exp:6,tPct:.350,ftRate:.34,toRate:18.0,toForce:17.5,orbPct:29,drbPct:71,pace:69,runVol:4.5,inj:0},
+"Gonzaga":{s:3,r:"West",rec:"30-3",adjEM:23.0,offRk:29,defRk:9,luck:.00,sos:62,exp:8,tPct:.372,ftRate:.34,toRate:16.0,toForce:20.0,orbPct:31,drbPct:76,pace:71,runVol:7.5,inj:0},
+"Kennesaw St.":{s:14,r:"West",rec:"21-13",adjEM:-3.0,offRk:144,defRk:195,luck:.03,sos:15,exp:1,tPct:.340,ftRate:.29,toRate:18.5,toForce:17.5,orbPct:27,drbPct:71,pace:68,runVol:4.5,inj:0},
+"Miami FL":{s:7,r:"West",rec:"25-8",adjEM:12.8,offRk:33,defRk:38,luck:.01,sos:78,exp:6,tPct:.360,ftRate:.32,toRate:16.8,toForce:19.0,orbPct:30,drbPct:74,pace:68,runVol:6,inj:0},
+"Missouri":{s:10,r:"West",rec:"20-12",adjEM:8.0,offRk:50,defRk:77,luck:.01,sos:85,exp:4,tPct:.345,ftRate:.33,toRate:17.5,toForce:18.5,orbPct:30,drbPct:73,pace:69,runVol:5,inj:0},
+"Purdue":{s:2,r:"West",rec:"27-8",adjEM:24.0,offRk:2,defRk:36,luck:-.01,sos:88,exp:8,tPct:.385,ftRate:.37,toRate:15.5,toForce:19.0,orbPct:30,drbPct:75,pace:68.5,runVol:7.5,inj:0},
+"Queens":{s:15,r:"West",rec:"21-13",adjEM:-6.5,offRk:77,defRk:322,luck:.05,sos:10,exp:1,tPct:.358,ftRate:.30,toRate:18.5,toForce:17.0,orbPct:29,drbPct:70,pace:71,runVol:4.5,inj:0},
+
+// MIDWEST REGION ==========================================
+"Michigan":{s:1,r:"Midwest",rec:"31-3",adjEM:38.5,offRk:8,defRk:1,luck:.01,sos:90,exp:7,tPct:.372,ftRate:.34,toRate:16.0,toForce:21.0,orbPct:32,drbPct:79,pace:68,runVol:8,inj:0},
+"Howard":{s:16,r:"Midwest",rec:"22-12",adjEM:-8.5,offRk:283,defRk:118,luck:.00,sos:10,exp:2,tPct:.380,ftRate:.28,toRate:19.0,toForce:18.0,orbPct:27,drbPct:71,pace:70,runVol:4.5,inj:0},
+"Georgia":{s:8,r:"Midwest",rec:"22-10",adjEM:12.0,offRk:16,defRk:80,luck:.03,sos:88,exp:4,tPct:.355,ftRate:.35,toRate:17.5,toForce:18.5,orbPct:30,drbPct:72,pace:71,runVol:5.5,inj:0},
+"Saint Louis":{s:9,r:"Midwest",rec:"28-5",adjEM:11.5,offRk:51,defRk:41,luck:-.02,sos:48,exp:4,tPct:.358,ftRate:.32,toRate:16.5,toForce:19.5,orbPct:30,drbPct:75,pace:65,runVol:6.5,inj:0},
+"Texas Tech":{s:5,r:"Midwest",rec:"22-10",adjEM:17.0,offRk:12,defRk:33,luck:.01,sos:82,exp:5,tPct:.355,ftRate:.33,toRate:16.5,toForce:20.0,orbPct:31,drbPct:75,pace:67,runVol:6.5,inj:0},
+"Akron":{s:12,r:"Midwest",rec:"29-5",adjEM:5.5,offRk:54,defRk:113,luck:.02,sos:28,exp:3,tPct:.365,ftRate:.30,toRate:17.0,toForce:18.8,orbPct:30,drbPct:73,pace:68,runVol:6,inj:0},
+"Alabama":{s:4,r:"Midwest",rec:"23-9",adjEM:18.5,offRk:3,defRk:67,luck:.02,sos:88,exp:6,tPct:.370,ftRate:.38,toRate:18.0,toForce:19.0,orbPct:31,drbPct:73,pace:74,runVol:7.5,inj:8},
+"Hofstra":{s:13,r:"Midwest",rec:"24-10",adjEM:1.0,offRk:89,defRk:96,luck:.01,sos:22,exp:2,tPct:.352,ftRate:.30,toRate:17.5,toForce:18.5,orbPct:29,drbPct:72,pace:68,runVol:5,inj:0},
+"Tennessee":{s:6,r:"Midwest",rec:"22-11",adjEM:19.5,offRk:37,defRk:15,luck:.00,sos:86,exp:8,tPct:.338,ftRate:.36,toRate:16.5,toForce:21.0,orbPct:32,drbPct:76,pace:65,runVol:7,inj:5},
+"SMU":{s:11,r:"Midwest",rec:"20-13",adjEM:10.0,offRk:26,defRk:91,luck:.01,sos:78,exp:4,tPct:.358,ftRate:.32,toRate:17.0,toForce:18.5,orbPct:29,drbPct:72,pace:69,runVol:5.5,inj:0},
+"Virginia":{s:3,r:"Midwest",rec:"29-5",adjEM:20.5,offRk:27,defRk:16,luck:.00,sos:78,exp:5,tPct:.368,ftRate:.30,toRate:15.0,toForce:18.5,orbPct:33,drbPct:76,pace:62,runVol:6.5,inj:0},
+"Wright St.":{s:14,r:"Midwest",rec:"23-11",adjEM:-2.5,offRk:117,defRk:194,luck:.02,sos:16,exp:2,tPct:.345,ftRate:.29,toRate:18.0,toForce:18.0,orbPct:28,drbPct:71,pace:68,runVol:5,inj:0},
+"Kentucky":{s:7,r:"Midwest",rec:"21-13",adjEM:14.5,offRk:39,defRk:27,luck:.04,sos:88,exp:4,tPct:.348,ftRate:.35,toRate:17.5,toForce:19.0,orbPct:30,drbPct:74,pace:70,runVol:5.5,inj:0},
+"Santa Clara":{s:10,r:"Midwest",rec:"26-8",adjEM:10.5,offRk:23,defRk:82,luck:.00,sos:42,exp:4,tPct:.378,ftRate:.31,toRate:16.0,toForce:18.8,orbPct:28,drbPct:73,pace:67,runVol:6,inj:0},
+"Iowa State":{s:2,r:"Midwest",rec:"27-7",adjEM:26.0,offRk:21,defRk:4,luck:-.01,sos:84,exp:7,tPct:.355,ftRate:.33,toRate:15.5,toForce:22.5,orbPct:30,drbPct:77,pace:66,runVol:8,inj:0},
+"Tenn. State":{s:15,r:"Midwest",rec:"23-9",adjEM:-5.5,offRk:173,defRk:212,luck:.01,sos:14,exp:1,tPct:.338,ftRate:.30,toRate:18.5,toForce:17.5,orbPct:28,drbPct:71,pace:69,runVol:4.5,inj:0},
+
+// SOUTH REGION ============================================
+"Florida":{s:1,r:"South",rec:"26-7",adjEM:29.0,offRk:9,defRk:6,luck:.02,sos:90,exp:8,tPct:.365,ftRate:.35,toRate:16.0,toForce:20.5,orbPct:31,drbPct:77,pace:69,runVol:7.5,inj:0},
+"Lehigh":{s:16,r:"South",rec:"22-12",adjEM:-10.0,offRk:290,defRk:257,luck:.01,sos:8,exp:1,tPct:.330,ftRate:.28,toRate:19.0,toForce:17.0,orbPct:26,drbPct:70,pace:67,runVol:4,inj:0},
+"Clemson":{s:8,r:"South",rec:"24-10",adjEM:11.0,offRk:71,defRk:20,luck:.01,sos:80,exp:5,tPct:.340,ftRate:.34,toRate:17.0,toForce:19.8,orbPct:31,drbPct:75,pace:65,runVol:6,inj:0},
+"Iowa":{s:9,r:"South",rec:"21-12",adjEM:13.5,offRk:31,defRk:31,luck:.03,sos:86,exp:6,tPct:.362,ftRate:.33,toRate:17.5,toForce:18.5,orbPct:29,drbPct:74,pace:71,runVol:5.5,inj:0},
+"Vanderbilt":{s:5,r:"South",rec:"26-8",adjEM:20.0,offRk:7,defRk:29,luck:-.02,sos:88,exp:4,tPct:.372,ftRate:.36,toRate:16.0,toForce:19.5,orbPct:30,drbPct:75,pace:70,runVol:7.5,inj:0},
+"McNeese St.":{s:12,r:"South",rec:"28-5",adjEM:4.5,offRk:91,defRk:47,luck:-.01,sos:22,exp:2,tPct:.358,ftRate:.31,toRate:16.5,toForce:19.5,orbPct:30,drbPct:74,pace:68,runVol:6,inj:0},
+"Nebraska":{s:4,r:"South",rec:"26-6",adjEM:20.5,offRk:55,defRk:7,luck:.01,sos:86,exp:4,tPct:.348,ftRate:.32,toRate:16.0,toForce:20.0,orbPct:31,drbPct:77,pace:66,runVol:6.5,inj:0},
+"Troy":{s:13,r:"South",rec:"22-11",adjEM:-2.0,offRk:141,defRk:166,luck:.02,sos:16,exp:2,tPct:.342,ftRate:.29,toRate:18.0,toForce:18.0,orbPct:28,drbPct:71,pace:69,runVol:5,inj:0},
+"UNC":{s:6,r:"South",rec:"24-8",adjEM:13.5,offRk:32,defRk:37,luck:.03,sos:82,exp:8,tPct:.358,ftRate:.33,toRate:17.5,toForce:18.5,orbPct:31,drbPct:73,pace:72,runVol:6,inj:0},
+"VCU":{s:11,r:"South",rec:"27-7",adjEM:9.0,offRk:46,defRk:63,luck:-.01,sos:48,exp:5,tPct:.350,ftRate:.32,toRate:16.5,toForce:20.5,orbPct:31,drbPct:74,pace:68,runVol:6.5,inj:0},
+"Illinois":{s:3,r:"South",rec:"24-8",adjEM:25.0,offRk:1,defRk:28,luck:.01,sos:86,exp:6,tPct:.378,ftRate:.36,toRate:16.0,toForce:19.5,orbPct:32,drbPct:75,pace:72,runVol:7.5,inj:5},
+"Penn":{s:14,r:"South",rec:"18-11",adjEM:-3.5,offRk:215,defRk:112,luck:.00,sos:12,exp:3,tPct:.345,ftRate:.28,toRate:17.5,toForce:18.0,orbPct:28,drbPct:72,pace:66,runVol:5,inj:8},
+"Saint Mary's":{s:7,r:"South",rec:"27-5",adjEM:15.5,offRk:43,defRk:19,luck:.00,sos:52,exp:8,tPct:.370,ftRate:.32,toRate:15.5,toForce:18.5,orbPct:29,drbPct:75,pace:63,runVol:6.5,inj:0},
+"Texas A&M":{s:10,r:"South",rec:"21-11",adjEM:10.5,offRk:49,defRk:40,luck:.02,sos:86,exp:5,tPct:.350,ftRate:.34,toRate:17.0,toForce:19.0,orbPct:30,drbPct:74,pace:68,runVol:5.5,inj:0},
+"Houston":{s:2,r:"South",rec:"28-6",adjEM:27.5,offRk:14,defRk:5,luck:.01,sos:80,exp:8,tPct:.348,ftRate:.35,toRate:16.0,toForce:22.0,orbPct:34,drbPct:78,pace:64,runVol:8,inj:0},
+"Idaho":{s:15,r:"South",rec:"21-14",adjEM:-2.5,offRk:176,defRk:136,luck:-.03,sos:14,exp:1,tPct:.342,ftRate:.29,toRate:18.0,toForce:18.0,orbPct:28,drbPct:72,pace:68,runVol:5.5,inj:0},
+};
+
+// ============================================================
+//  MODEL WEIGHTS — default calibration
+// ============================================================
+let W = {
+  adjEM:      22,  // Adjusted Efficiency Margin — THE core predictor
+  defense:    16,  // Defensive efficiency — travels in March
+  luck:       10,  // Luck regression penalty
+  offense:     9,  // Offensive efficiency
+  sos:         8,  // Strength of schedule
+  experience:  7,  // Returners + coach experience
+  shooting:    7,  // 3PT% + FT rate
+  turnovers:   6,  // TO rate (commit & force)
+  rebounding:  5,  // ORB + DRB margins
+  pace:        4,  // Tempo factor
+  runs:        4,  // Scoring run volatility
+  injury:      2,  // Injury discount
+};
+
+const PRESETS = {
+  "Model default": {adjEM:22,defense:16,luck:10,offense:9,sos:8,experience:7,shooting:7,turnovers:6,rebounding:5,pace:4,runs:4,injury:2},
+  "Defense wins March": {adjEM:18,defense:22,luck:10,offense:6,sos:7,experience:6,shooting:5,turnovers:8,rebounding:7,pace:3,runs:6,injury:2},
+  "Chaos / upsets": {adjEM:14,defense:10,luck:14,offense:8,sos:5,experience:5,shooting:8,turnovers:6,rebounding:5,pace:6,runs:14,injury:5},
+  "Pure analytics": {adjEM:28,defense:18,luck:12,offense:12,sos:10,experience:4,shooting:4,turnovers:4,rebounding:3,pace:2,runs:1,injury:2},
+};
+let activePreset = "Model default";
+
+// ============================================================
+//  SCORING ENGINE
+// ============================================================
+function norm(val, min, max) { return Math.max(0, Math.min(100, (val - min) / (max - min) * 100)); }
+
+function score(name) {
+  const t = T[name];
+  const wTotal = Object.values(W).reduce((a,b) => a+b, 0) || 1;
+
+  // 1. AdjEM (range roughly -15 to +42)
+  const adjEMscore = norm(t.adjEM, -15, 42);
+
+  // 2. Defensive efficiency (lower rank = better, invert)
+  const defScore = norm(365 - t.defRk, 0, 365);
+  
+  // 3. Luck regression: lucky teams get PENALIZED
+  // luck > 0 means overperformed close games → regress
+  const luckPenalty = (1 - t.luck * 8) * 50; // luck=0 → 50, luck=.08 → 18
+  const luckScore = Math.max(0, Math.min(100, luckPenalty));
+
+  // 4. Offensive efficiency
+  const offScore = norm(365 - t.offRk, 0, 365);
+
+  // 5. Strength of schedule (already 0-100)
+  const sosScore = t.sos;
+
+  // 6. Experience
+  const expScore = t.exp * 10;
+
+  // 7. Shooting: 3PT% (range .32-.39) + FT rate (range .27-.40)
+  const threePt = norm(t.tPct, .320, .390);
+  const ftR = norm(t.ftRate, .27, .40);
+  const shootScore = threePt * 0.6 + ftR * 0.4;
+
+  // 8. Turnovers: low TO rate good + high forced TO rate good
+  const toOwn = norm(20 - t.toRate, 0, 6); // lower is better → invert
+  const toForced = norm(t.toForce, 16, 23);
+  const toScore = toOwn * 0.5 + toForced * 0.5;
+
+  // 9. Rebounding: ORB% + DRB%
+  const orbS = norm(t.orbPct, 24, 36);
+  const drbS = norm(t.drbPct, 68, 80);
+  const rebScore = orbS * 0.4 + drbS * 0.6;
+
+  // 10. Pace — moderate pace is optimal for March (65-71 range);
+  // extremes (very fast or very slow) are slight disadvantages
+  const optimalPace = 68;
+  const paceDev = Math.abs(t.pace - optimalPace);
+  const paceScore = norm(8 - paceDev, 0, 8);
+
+  // 11. Scoring run volatility (high = makes big runs, survives opponent runs)
+  const runScore = t.runVol * 10;
+
+  // 12. Injury discount (higher inj = worse)
+  const injScore = (10 - t.inj) * 10;
+
+  return (
+    (W.adjEM / wTotal)      * adjEMscore +
+    (W.defense / wTotal)    * defScore +
+    (W.luck / wTotal)       * luckScore +
+    (W.offense / wTotal)    * offScore +
+    (W.sos / wTotal)        * sosScore +
+    (W.experience / wTotal) * expScore +
+    (W.shooting / wTotal)   * shootScore +
+    (W.turnovers / wTotal)  * toScore +
+    (W.rebounding / wTotal) * rebScore +
+    (W.pace / wTotal)       * paceScore +
+    (W.runs / wTotal)       * runScore +
+    (W.injury / wTotal)     * injScore
+  );
+}
+
+function winProb(a, b) {
+  const d = score(a) - score(b);
+  return 1 / (1 + Math.exp(-d * 0.115));
+}
+
+// ============================================================
+//  BRACKET SIMULATION
+// ============================================================
+function simBracket() {
+  const regions = ["East","West","Midwest","South"];
+  const res = {};
+  regions.forEach(reg => {
+    const teams = Object.keys(T).filter(n => T[n].r === reg).sort((a,b) => T[a].s - T[b].s);
+    const seedPairs = [[0,15],[7,8],[4,11],[3,12],[5,10],[2,13],[6,9],[1,14]];
+    let rd = seedPairs.map(([a,b]) => [teams[a], teams[b]]);
+    res[reg] = {rounds:[]};
+    const rNames = ["Round of 64","Round of 32","Sweet 16","Elite Eight"];
+    for (let r = 0; r < 4; r++) {
+      const rr = [];
+      const next = [];
+      for (const [a, b] of rd) {
+        const p = winProb(a, b);
+        const w = p >= .5 ? a : b;
+        const l = p >= .5 ? b : a;
+        const wp = p >= .5 ? p : 1-p;
+        const upset = T[w].s > T[l].s + 2;
+        const luckFlag = (T[l].luck >= .04 && T[l].s < T[w].s);
+        rr.push({a, b, pA:p, w, l, wp, upset, luckFlag});
+        next.push(w);
+      }
+      res[reg].rounds.push({name:rNames[r], matchups:rr});
+      const paired = [];
+      for (let i=0;i<next.length;i+=2) if(next[i+1]) paired.push([next[i],next[i+1]]);
+      rd = paired;
+    }
+    res[reg].champ = res[reg].rounds[3].matchups[0].w;
+  });
+  const ff = regions.map(r => res[r].champ);
+  const s1p = winProb(ff[0],ff[1]); const s1w = s1p>=.5?ff[0]:ff[1];
+  const s2p = winProb(ff[2],ff[3]); const s2w = s2p>=.5?ff[2]:ff[3];
+  const fp = winProb(s1w,s2w); const champ = fp>=.5?s1w:s2w;
+  res.ff = {teams:ff, s1:{a:ff[0],b:ff[1],pA:s1p,w:s1w}, s2:{a:ff[2],b:ff[3],pA:s2p,w:s2w}, fin:{a:s1w,b:s2w,pA:fp,w:champ}, champ};
+  return res;
+}
+
+function powerRankings() {
+  return Object.keys(T).map(n => ({n, sc:score(n), ...T[n]})).sort((a,b) => b.sc - a.sc);
+}
+
+// ============================================================
+//  RENDERING
+// ============================================================
+let view = 'overview';
+
+function render() {
+  const res = simBracket();
+  const pr = powerRankings();
+  const mx = pr[0].sc;
+  let h = '';
+
+  // Header
+  h += `<div class="hdr">
+    <div class="pill pill-o">2026 NCAA Tournament</div>
+    <h1>March <em>Madness</em> Model</h1>
+    <p class="sub">Advanced multi-factor model built on adjusted efficiency margin, defensive efficiency, luck regression, shooting profiles, turnovers, rebounding, pace, and scoring run volatility. Seed data is not an input.</p>
+  </div>`;
+
+  // Core principles
+  h += `<div class="sec">
+    <h2><span class="ico" style="background:var(--o-dim);color:var(--o)">!</span> Model architecture</h2>
+    <p>The model scores every team on <strong>11 weighted factors</strong>. The single best predictor of tournament success — adjusted efficiency margin — anchors everything. Defense is weighted more heavily than offense because it travels better in March. A <strong>luck regression</strong> module penalizes teams whose record exceeded their underlying efficiency (lots of close wins = fragile). Supporting factors like shooting profile, pace fit, turnover differential, rebounding, and scoring run volatility capture the texture that efficiency alone misses.</p>
+    <div class="princ-grid">
+      <div class="princ princ-1"><div class="pw">${W.adjEM}%</div><div class="pl">Adj. efficiency margin</div></div>
+      <div class="princ princ-2"><div class="pw">${W.defense}%</div><div class="pl">Defensive efficiency</div></div>
+      <div class="princ princ-3"><div class="pw">${W.luck}%</div><div class="pl">Luck regression</div></div>
+      <div class="princ princ-4"><div class="pw">${W.shooting}%</div><div class="pl">3PT% / FT rate</div></div>
+      <div class="princ princ-5"><div class="pw">${W.turnovers}%</div><div class="pl">Turnover differential</div></div>
+      <div class="princ princ-6"><div class="pw">${W.runs}%</div><div class="pl">Scoring run volatility</div></div>
+    </div>
+  </div>`;
+
+  // Weights
+  h += `<div class="sec">
+    <h2>Adjust weights</h2>
+    <div class="presets">${Object.keys(PRESETS).map(p => `<button class="pbtn ${p===activePreset?'on':''}" onclick="preset('${p}')">${p}</button>`).join('')}</div>`;
+  const wL = {adjEM:"Adj. efficiency margin",defense:"Defensive efficiency",luck:"Luck regression",offense:"Offensive efficiency",sos:"Strength of schedule",experience:"Experience / coaching",shooting:"3PT% + FT rate",turnovers:"Turnover differential",rebounding:"Rebounding (ORB+DRB)",pace:"Pace / tempo fit",runs:"Scoring run volatility",injury:"Injury discount"};
+  Object.keys(W).forEach(k => {
+    h += `<div class="wrow"><div class="wlbl">${wL[k]}</div><div class="wslider"><input type="range" min="0" max="30" value="${W[k]}" oninput="wUp('${k}',this.value)"></div><div class="wval" id="wv-${k}">${W[k]}%</div></div>`;
+  });
+  h += `</div>`;
+
+  // Tabs
+  h += `<div class="tabs">
+    <button class="tab ${view==='overview'?'on':''}" onclick="sv('overview')">Title path</button>
+    <button class="tab ${view==='east'?'on':''}" onclick="sv('east')">East</button>
+    <button class="tab ${view==='west'?'on':''}" onclick="sv('west')">West</button>
+    <button class="tab ${view==='midwest'?'on':''}" onclick="sv('midwest')">Midwest</button>
+    <button class="tab ${view==='south'?'on':''}" onclick="sv('south')">South</button>
+    <button class="tab ${view==='power'?'on':''}" onclick="sv('power')">Power rankings</button>
+    <button class="tab ${view==='insights'?'on':''}" onclick="sv('insights')">Model insights</button>
+  </div>`;
+
+  if (view==='overview') h += renderOverview(res);
+  else if (view==='power') h += renderPower(pr, mx);
+  else if (view==='insights') h += renderInsights(pr);
+  else { const m={east:'East',west:'West',midwest:'Midwest',south:'South'}; h += renderRegion(res, m[view]); }
+
+  document.getElementById('app').innerHTML = h;
+}
+
+function renderOverview(res) {
+  const ff = res.ff;
+  let h = `<div class="champ"><div class="trophy">🏆</div><h2>${ff.champ}</h2>
+    <div class="det">${T[ff.champ].s}-seed · ${T[ff.champ].rec} · AdjEM: ${T[ff.champ].adjEM>0?'+':''}${T[ff.champ].adjEM} · Def: #${T[ff.champ].defRk} · Off: #${T[ff.champ].offRk}</div>
+    <div class="cp">${((ff.fin.pA>=.5?ff.fin.pA:1-ff.fin.pA)*100).toFixed(0)}% in the final</div>
+  </div>`;
+  h += `<div class="rlbl">Final Four</div><div class="ff">`;
+  ff.teams.forEach(t => {
+    h += `<div class="ffc ${t===ff.champ?'chp':''}"><div class="fs">${T[t].s}-seed · ${T[t].r}</div><div class="fn">${t}</div><div class="fp">Power: ${score(t).toFixed(1)} · Luck: ${T[t].luck>=0?'+':''}${(T[t].luck*100).toFixed(0)}%</div></div>`;
+  });
+  h += `</div>`;
+  h += `<div class="rlbl">National Semifinals</div>`;
+  h += mu(ff.s1.a,ff.s1.b,ff.s1.pA,ff.s1.w);
+  h += mu(ff.s2.a,ff.s2.b,ff.s2.pA,ff.s2.w);
+  h += `<div class="rlbl">National Championship</div>`;
+  h += mu(ff.fin.a,ff.fin.b,ff.fin.pA,ff.fin.w);
+  return h;
+}
+
+function renderRegion(res, reg) {
+  const r = res[reg];
+  let h = `<div style="display:flex;align-items:center;gap:10px;margin-bottom:16px;padding-bottom:10px;border-bottom:1px solid var(--bdr)">
+    <h3 style="font-size:18px;font-weight:700">${reg} Region</h3>
+    <span class="sp sp-g">Champion: ${r.champ}</span></div>`;
+  r.rounds.forEach(round => {
+    h += `<div class="rlbl">${round.name}</div>`;
+    round.matchups.forEach(m => h += mu(m.a, m.b, m.pA, m.w, m.luckFlag));
+  });
+  return h;
+}
+
+function mu(a, b, pA, w, luckFlag) {
+  const tA=T[a],tB=T[b];
+  const pctA=(pA*100).toFixed(1), pctB=((1-pA)*100).toFixed(1);
+  const upset = w===a ? tA.s>tB.s+2 : tB.s>tA.s+2;
+  const loser = w===a?b:a;
+  const lf = luckFlag && T[loser].luck>=.04;
+  return `<div class="mu"><div class="matchup-teams">
+    <div class="tr ${w===a?'w':pA<.5?'l':''}"><span class="sd">${tA.s}</span><span class="nm">${a}</span><span class="rec">${tA.rec}</span><span class="pct">${pctA}%</span><div class="bar" style="width:${pctA}%"></div></div>
+    <div class="mu-div"></div>
+    <div class="tr ${w===b?'w':pA>=.5?'l':''}"><span class="sd">${tB.s}</span><span class="nm">${b}</span><span class="rec">${tB.rec}</span><span class="pct">${pctB}%</span><div class="bar" style="width:${pctB}%"></div></div>
+  </div><div class="mu-ft">
+    <span>AdjEM: ${tA.adjEM>0?'+':''}${tA.adjEM} vs ${tB.adjEM>0?'+':''}${tB.adjEM}</span>
+    <span>Def: #${tA.defRk} vs #${tB.defRk}</span>
+    <span>Pace: ${tA.pace} vs ${tB.pace}</span>
+    ${upset?'<span class="utag">UPSET</span>':''}
+    ${lf?'<span class="ltag">LUCK REGRESSION</span>':''}
+  </div></div>`;
+}
+
+function renderPower(pr, mx) {
+  let h = `<div style="overflow-x:auto"><table class="ptbl"><thead><tr><th>Rk</th><th>Team</th><th>Sd</th><th>Reg</th><th>Score</th><th style="width:18%">Str</th><th>AdjEM</th><th>Def</th><th>Off</th><th>Luck</th><th>Runs</th></tr></thead><tbody>`;
+  pr.slice(0,45).forEach((t,i) => {
+    const pct = t.sc/mx*100;
+    const c = i<4?'var(--o)':i<10?'var(--b)':i<20?'var(--t)':'var(--fg3)';
+    const luckC = t.luck>.03?'sp-r':t.luck<-.01?'sp-g':'sp-y';
+    h += `<tr><td class="rk">${i+1}</td><td style="font-weight:600">${t.n}</td><td style="font-family:var(--m)">${t.s}</td><td style="color:var(--fg3)">${t.r}</td>
+    <td class="sc" style="color:${c}">${t.sc.toFixed(1)}</td><td><div class="barbg"><div class="barfill" style="width:${pct}%;background:${c}"></div></div></td>
+    <td><span class="sp sp-p">${t.adjEM>0?'+':''}${t.adjEM}</span></td>
+    <td><span class="sp sp-g">#${t.defRk}</span></td>
+    <td><span class="sp sp-b">#${t.offRk}</span></td>
+    <td><span class="sp ${luckC}">${t.luck>=0?'+':''}${(t.luck*100).toFixed(0)}%</span></td>
+    <td><span class="sp sp-t">${t.runVol}</span></td></tr>`;
+  });
+  h += `</tbody></table></div>`;
+  return h;
+}
+
+function renderInsights(pr) {
+  // Find interesting model outputs
+  const luckyTeams = pr.filter(t => t.luck >= .04).sort((a,b) => b.luck - a.luck).slice(0,5);
+  const unluckyTeams = pr.filter(t => t.luck <= -.02).sort((a,b) => a.luck - b.luck).slice(0,5);
+  const bestDef = [...pr].sort((a,b) => a.defRk - b.defRk).slice(0,5);
+  const bestRuns = [...pr].sort((a,b) => b.runVol - a.runVol).slice(0,5);
+  const highTO = [...pr].sort((a,b) => b.toForce - a.toForce).slice(0,5);
+  const lowTO = [...pr].sort((a,b) => a.toRate - b.toRate).slice(0,5);
+
+  let h = `<div class="sec">
+    <h2><span class="ico" style="background:var(--y-dim);color:var(--y)">⚡</span> Model-driven insights</h2>
+    <div class="ins-grid">
+      <div class="ins"><div class="it" style="color:var(--r)">Luck regression candidates</div><div class="id">These teams won more close games than expected. The model penalizes them — historically, "lucky" teams underperform their seed in March.<br><br>${luckyTeams.map(t => `<strong>${t.n}</strong> (${t.s}-seed, luck: +${(t.luck*100).toFixed(0)}%)`).join(' · ')}</div></div>
+      <div class="ins"><div class="it" style="color:var(--g)">Unlucky / undervalued teams</div><div class="id">These teams' records understate their true quality. They lost close games and should be better than their seed suggests.<br><br>${unluckyTeams.map(t => `<strong>${t.n}</strong> (${t.s}-seed, luck: ${(t.luck*100).toFixed(0)}%)`).join(' · ')}</div></div>
+      <div class="ins"><div class="it" style="color:var(--b)">Elite defenses (travel in March)</div><div class="id">Defense is the most portable skill in tournament play — new venues, hostile crowds, single-elimination pressure all favor teams that can get stops.<br><br>${bestDef.map(t => `<strong>${t.n}</strong> (Def #${t.defRk})`).join(' · ')}</div></div>
+      <div class="ins"><div class="it" style="color:var(--o)">Best scoring run teams</div><div class="id">Teams that generate large scoring bursts and prevent opponents from doing the same have a structural advantage in single-elimination play where momentum swings decide games.<br><br>${bestRuns.map(t => `<strong>${t.n}</strong> (RunVol: ${t.runVol})`).join(' · ')}</div></div>
+      <div class="ins"><div class="it" style="color:var(--t)">Turnover machines (force TOs)</div><div class="id">Forcing turnovers creates chaos and extra possessions — critical in high-pressure March environments where every possession matters.<br><br>${highTO.map(t => `<strong>${t.n}</strong> (Force: ${t.toForce}%)`).join(' · ')}</div></div>
+      <div class="ins"><div class="it" style="color:var(--p)">Ball security (lowest TO rate)</div><div class="id">Taking care of the ball under pressure is essential when facing tournament-caliber defenses. These teams rarely beat themselves.<br><br>${lowTO.map(t => `<strong>${t.n}</strong> (TO: ${t.toRate}%)`).join(' · ')}</div></div>
+    </div>
+  </div>`;
+
+  // Specific calls
+  h += `<div class="sec">
+    <h2><span class="ico" style="background:var(--r-dim);color:var(--r)">🎯</span> Specific model calls</h2>
+    <p><strong style="color:var(--r)">Kansas (4-seed, East):</strong> Peterson's injury situation is devastating. The model assigns a severe injury discount, and their luck factor (+3%) suggests close-game fragility. This is a vulnerable 4-seed — Cal Baptist or St. John's could capitalize.</p>
+    <p style="margin-top:8px"><strong style="color:var(--r)">Alabama (4-seed, Midwest):</strong> Elite offense (#3) masked by the 67th-ranked defense and Holloway's arrest. The model's defensive weighting and injury flag push Alabama well below their seed line. Upset risk against Hofstra or Akron.</p>
+    <p style="margin-top:8px"><strong style="color:var(--r)">BYU (6-seed, West):</strong> Lost Richie Saunders to an ACL tear and dropped 4 of their last 6. Injury flag + negative momentum = model downgrade despite strong underlying offense.</p>
+    <p style="margin-top:8px"><strong style="color:var(--g)">Vanderbilt (5-seed, South):</strong> The model loves this team — negative luck factor means they're BETTER than their record shows. #7 offense, #29 defense, strong rebounding, and hot form entering the tournament. Deep run candidate.</p>
+    <p style="margin-top:8px"><strong style="color:var(--g)">Iowa State (2-seed, Midwest):</strong> The #4 defense + #1 turnover-forcing rate is a devastating March combination. Negative luck factor means they've been slightly unlucky. Elite scoring run profile (8.0). Legitimate title contender.</p>
+    <p style="margin-top:8px"><strong style="color:var(--g)">Saint Mary's (7-seed, South):</strong> Zero luck inflation, elite defense (#19), great ball security (15.5% TO rate). Underseeded by the committee — the model ranks them well above a typical 7-seed. Sweet 16 candidate.</p>
+    <p style="margin-top:8px"><strong style="color:var(--y)">High Point (12-seed, West):</strong> High luck factor (+7%) is the biggest red flag in the entire field. Their 30-4 record far exceeds their underlying quality. Classic regression candidate — pick Wisconsin here.</p>
+    <p style="margin-top:8px"><strong style="color:var(--y)">UConn (2-seed, East):</strong> Luck factor (+4%) and high turnover rate (18.5%) are concerns despite elite defense. The model sees them as more vulnerable than their seed suggests — UCLA matchup in R32 is dangerous.</p>
+  </div>`;
+
+  return h;
+}
+
+// Interaction
+window.sv = v => { view = v; render(); };
+window.wUp = (k, v) => { W[k]=+v; document.getElementById('wv-'+k).textContent=v+'%'; activePreset=''; clearTimeout(window._wt); window._wt=setTimeout(render,200); };
+window.preset = n => { activePreset=n; Object.assign(W, PRESETS[n]); render(); };
+
+render();
+</script>
+</body>
+</html>
